@@ -1,5 +1,6 @@
-import { getApp, getApps, initializeApp } from "@firebase/app";
+import { getApp, getApps, initializeApp, } from "@firebase/app";
 import { getAuth, signInAnonymously } from "@firebase/auth";
+import { deleteField, getFirestore } from 'firebase/firestore'
 
 export const firebaseApp =
     getApps().length > 0
@@ -13,7 +14,10 @@ export const firebaseApp =
             appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
             measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
         });
+
 export const auth = getAuth(firebaseApp);
+export const db = getFirestore(firebaseApp)
+export const FieldvalueDelete = deleteField()
 
 export function signInAnonymous(): ReturnType<typeof signInAnonymously> {
     return signInAnonymously(auth);

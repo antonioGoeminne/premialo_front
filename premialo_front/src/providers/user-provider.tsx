@@ -1,8 +1,10 @@
 'use client'
 import { create } from 'zustand'
-import { createContext, type ReactNode } from 'react';
-import { onAuthStateChanged } from "firebase/auth";
+import { createContext, type ReactNode, useEffect } from 'react';
+import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
 import { auth, signInAnonymous } from '@/config/firebase-config';
+import { createUser } from '@/features/user/services/create-user';
+import { getUserData } from '@/features/user/services/get-user-data';
 interface User {
   uid: string | null | undefined;
   name: string;
@@ -21,30 +23,43 @@ interface UserProviderProps {
 }
 
 
-const useUserStore = create<UserContextType>((set) => ({
-  user: {uid: null, name: '', email: ''},
+export const useUser = create<UserContextType>((set) => ({
+  user: { uid: null, name: '', email: '' },
   setUser: (user) => set({ user }),
 }))
 
 
 export const UserProvider = ({ children }: UserProviderProps) => {
-  const setUser = useUserStore((state) => state.setUser)
+  const uid = useUser((state) => state.user.uid)
+  const setUser = useUser((state) => state.setUser)
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setUser(user)
-    } else {
-      signInAnonymous()
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user: FirebaseUser | null) => {
+      if (user) {
+        getUserData(user.uid, (data) => {
+          if (data) {
+            setUser({
+              ...data
+            })
+          }
+        })
+      } else {
+        signInAnonymous()
+      }
+    });
+    return () => unsubscribe();
+  }, [setUser]);
+
+  useEffect(() => {
+    if (uid) {
+      createUser(uid)
     }
-  });
+  }, [uid])
+
 
   return (
     <UserContext.Provider value={undefined}>
       {children}
     </UserContext.Provider>
   );
-};
-
-export const useUser = () => {
-   return useUserStore().user
 };

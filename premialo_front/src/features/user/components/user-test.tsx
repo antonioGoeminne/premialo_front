@@ -2,9 +2,11 @@
 import { useUser } from "@/providers/user-provider"
 
 export const UserTest = () => {
-    const { uid } = useUser()
+    const name = useUser(st => st.user.name)
+
+    if(!name) return <div></div>
 
     return (
-        <div>UserTest: {uid}</div>
+        <div>UserName: {name}</div>
     )
 }
