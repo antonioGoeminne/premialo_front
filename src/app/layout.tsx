@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Provider } from "@/providers/provider";
 import { getCurrentUser } from "@/features/user/services/get-server-data";
-import { UserInitializer } from "@/features/user/components/user-initializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +29,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script
           crossOrigin="anonymous"
           src="//unpkg.com/react-scan/dist/auto.global.js"
@@ -38,8 +38,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <UserInitializer user={user} />
-        <Provider>
+        <Provider initData={{ user: user?.length ? JSON.parse(user) : undefined }}>
           {children}
         </Provider>
       </body>

@@ -2,8 +2,8 @@ import { authAdmin, dbAdmin } from '@/lib/firebase/admin';
 import { cookies } from 'next/headers';
 
 export async function getCurrentUser(): Promise<string | null> {
-  // @ts-expect-error cookie exists and works
-  const sessionCookie = cookies().get('session')?.value;
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get('session')?.value
 
   if (!sessionCookie) {
     return null;
